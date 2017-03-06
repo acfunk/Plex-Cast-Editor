@@ -29,79 +29,107 @@
         private void InitializeComponent()
         {
             this.ofdDatabase = new System.Windows.Forms.OpenFileDialog();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dgvLibraries = new System.Windows.Forms.DataGridView();
-            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvLibraries)).BeginInit();
+            this.cmbLIbraries = new System.Windows.Forms.ComboBox();
+            this.lblLibraries = new System.Windows.Forms.Label();
+            this.dgvMetadataItems = new System.Windows.Forms.DataGridView();
+            this.lblItems = new System.Windows.Forms.Label();
+            this.lblActors = new System.Windows.Forms.Label();
+            this.dgvActors = new System.Windows.Forms.DataGridView();
+            this.txtActor = new System.Windows.Forms.TextBox();
+            this.btnAddActor = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMetadataItems)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvActors)).BeginInit();
             this.SuspendLayout();
             // 
-            // menuStrip1
+            // cmbLIbraries
             // 
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(28, 28);
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1737, 38);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
+            this.cmbLIbraries.FormattingEnabled = true;
+            this.cmbLIbraries.Location = new System.Drawing.Point(12, 49);
+            this.cmbLIbraries.Name = "cmbLIbraries";
+            this.cmbLIbraries.Size = new System.Drawing.Size(521, 32);
+            this.cmbLIbraries.TabIndex = 1;
             // 
-            // fileToolStripMenuItem
+            // lblLibraries
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(56, 34);
-            this.fileToolStripMenuItem.Text = "File";
+            this.lblLibraries.AutoSize = true;
+            this.lblLibraries.Location = new System.Drawing.Point(12, 21);
+            this.lblLibraries.Name = "lblLibraries";
+            this.lblLibraries.Size = new System.Drawing.Size(86, 25);
+            this.lblLibraries.TabIndex = 2;
+            this.lblLibraries.Text = "Libraries";
             // 
-            // openToolStripMenuItem
+            // dgvMetadataItems
             // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(240, 34);
-            this.openToolStripMenuItem.Text = "Open";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            this.dgvMetadataItems.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMetadataItems.Location = new System.Drawing.Point(12, 131);
+            this.dgvMetadataItems.Name = "dgvMetadataItems";
+            this.dgvMetadataItems.RowTemplate.Height = 31;
+            this.dgvMetadataItems.Size = new System.Drawing.Size(1713, 283);
+            this.dgvMetadataItems.TabIndex = 3;
+            this.dgvMetadataItems.SelectionChanged += new System.EventHandler(this.dgvMetadataItems_SelectionChanged);
             // 
-            // dgvLibraries
+            // lblItems
             // 
-            this.dgvLibraries.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvLibraries.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.id,
-            this.name});
-            this.dgvLibraries.Location = new System.Drawing.Point(12, 61);
-            this.dgvLibraries.Name = "dgvLibraries";
-            this.dgvLibraries.RowTemplate.Height = 31;
-            this.dgvLibraries.Size = new System.Drawing.Size(777, 150);
-            this.dgvLibraries.TabIndex = 1;
+            this.lblItems.AutoSize = true;
+            this.lblItems.Location = new System.Drawing.Point(12, 103);
+            this.lblItems.Name = "lblItems";
+            this.lblItems.Size = new System.Drawing.Size(59, 25);
+            this.lblItems.TabIndex = 4;
+            this.lblItems.Text = "Items";
             // 
-            // id
+            // lblActors
             // 
-            this.id.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.id.HeaderText = "id";
-            this.id.Name = "id";
+            this.lblActors.AutoSize = true;
+            this.lblActors.Location = new System.Drawing.Point(12, 446);
+            this.lblActors.Name = "lblActors";
+            this.lblActors.Size = new System.Drawing.Size(68, 25);
+            this.lblActors.TabIndex = 5;
+            this.lblActors.Text = "Actors";
             // 
-            // name
+            // dgvActors
             // 
-            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.name.HeaderText = "name";
-            this.name.Name = "name";
+            this.dgvActors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvActors.Location = new System.Drawing.Point(12, 545);
+            this.dgvActors.Name = "dgvActors";
+            this.dgvActors.RowTemplate.Height = 31;
+            this.dgvActors.Size = new System.Drawing.Size(1713, 283);
+            this.dgvActors.TabIndex = 6;
+            // 
+            // txtActor
+            // 
+            this.txtActor.Location = new System.Drawing.Point(17, 485);
+            this.txtActor.Name = "txtActor";
+            this.txtActor.Size = new System.Drawing.Size(516, 29);
+            this.txtActor.TabIndex = 7;
+            // 
+            // btnAddActor
+            // 
+            this.btnAddActor.Location = new System.Drawing.Point(562, 479);
+            this.btnAddActor.Name = "btnAddActor";
+            this.btnAddActor.Size = new System.Drawing.Size(126, 43);
+            this.btnAddActor.TabIndex = 8;
+            this.btnAddActor.Text = "Add Actor";
+            this.btnAddActor.UseVisualStyleBackColor = true;
+            this.btnAddActor.Click += new System.EventHandler(this.btnAddActor_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1737, 889);
-            this.Controls.Add(this.dgvLibraries);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
+            this.ClientSize = new System.Drawing.Size(1737, 1041);
+            this.Controls.Add(this.btnAddActor);
+            this.Controls.Add(this.txtActor);
+            this.Controls.Add(this.dgvActors);
+            this.Controls.Add(this.lblActors);
+            this.Controls.Add(this.lblItems);
+            this.Controls.Add(this.dgvMetadataItems);
+            this.Controls.Add(this.lblLibraries);
+            this.Controls.Add(this.cmbLIbraries);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvLibraries)).EndInit();
+            this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMetadataItems)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvActors)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -110,12 +138,14 @@
         #endregion
 
         private System.Windows.Forms.OpenFileDialog ofdDatabase;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.DataGridView dgvLibraries;
-        private System.Windows.Forms.DataGridViewTextBoxColumn id;
-        private System.Windows.Forms.DataGridViewTextBoxColumn name;
+        private System.Windows.Forms.ComboBox cmbLIbraries;
+        private System.Windows.Forms.Label lblLibraries;
+        private System.Windows.Forms.DataGridView dgvMetadataItems;
+        private System.Windows.Forms.Label lblItems;
+        private System.Windows.Forms.Label lblActors;
+        private System.Windows.Forms.DataGridView dgvActors;
+        private System.Windows.Forms.TextBox txtActor;
+        private System.Windows.Forms.Button btnAddActor;
     }
 }
 

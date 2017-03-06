@@ -1,58 +1,96 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Data.SQLite;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PlexCastEditor
 {
     public partial class Form1 : Form
-    {
+    {    
         public Form1()
         {
             InitializeComponent();
+            InitializeControls();
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            this.ofdDatabase.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases");
-            this.ofdDatabase.Filter = "db files (*.db)|*.db|All files (*.*)|*.*";
-            this.ofdDatabase.Multiselect = false;
+            //ofdDatabase.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases");
+            //ofdDatabase.Filter = "db files (*.db)|*.db|All files (*.*)|*.*";
+            //ofdDatabase.Multiselect = false;
+            Database.DBFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases\\com.plexapp.plugins.library.db");
+            UpdateLibraries();
+            UpdateActorAutoComplete();
+        }
 
-            if (this.ofdDatabase.ShowDialog() == DialogResult.OK)
+        private void cmbLibraries_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateMetadataItems();
+        }
+        
+        private void dgvMetadataItems_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateActors();
+        }
+
+        private void btnAddActor_Click(object sender, EventArgs e)
+        {
+            long actor_id = Database.CreateActor(txtActor.Text.Trim());
+            txtActor.Clear();
+            UpdateActorAutoComplete();
+            UpdateActors();
+        }
+
+        private void InitializeControls()
+        {
+            cmbLIbraries.ValueMember = "id";
+            cmbLIbraries.DisplayMember = "name";
+
+            dgvMetadataItems.AutoGenerateColumns = true;
+            dgvMetadataItems.ReadOnly = true;
+            dgvMetadataItems.AllowUserToAddRows = false;
+            dgvMetadataItems.MultiSelect = false;
+            dgvMetadataItems.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+
+            dgvActors.AutoGenerateColumns = true;
+            dgvActors.ReadOnly = true;
+            dgvActors.AllowUserToAddRows = false;
+            dgvActors.MultiSelect = false;
+            dgvActors.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        }
+
+        private void UpdateLibraries()
+        {
+            cmbLIbraries.SelectedIndexChanged -= new EventHandler(cmbLibraries_SelectedIndexChanged);
+            cmbLIbraries.DataSource = Database.GetLibrarySections();
+            cmbLIbraries.SelectedIndexChanged += new EventHandler(cmbLibraries_SelectedIndexChanged);
+        }
+
+        private void UpdateMetadataItems()
+        {
+            DataRowView drv = (DataRowView)cmbLIbraries.SelectedItem;
+            int metadata_item_id = int.Parse(drv["id"].ToString());
+            dgvMetadataItems.DataSource = Database.GetMetadataItems(metadata_item_id);
+            dgvMetadataItems.ClearSelection();
+        }
+
+        private void UpdateActorAutoComplete()
+        {
+            AutoCompleteStringCollection actorsAutoComplete = new AutoCompleteStringCollection();
+            actorsAutoComplete.AddRange(Database.GetAllActors());
+            txtActor.AutoCompleteMode = AutoCompleteMode.Suggest;
+            txtActor.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            txtActor.AutoCompleteCustomSource = actorsAutoComplete;
+        }
+
+        private void UpdateActors()
+        {
+            if (dgvMetadataItems.SelectedRows.Count > 0)
             {
-                string fileName = this.ofdDatabase.FileName;
-                try
-                {
-                    using (var connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", fileName)))
-                    {
-                        using (SQLiteCommand command = new SQLiteCommand("select id, name from library_sections;", connection))
-                        {
-                            connection.Open();
-                            using (SQLiteDataReader read = command.ExecuteReader())
-                            {
-                                while (read.Read())
-                                {
-                                    this.dgvLibraries.Rows.Add(new object[] {
-                                    read.GetValue(read.GetOrdinal("id")),
-                                    read.GetValue(read.GetOrdinal("name")),
-                                });
-                                }
-                            }
-                            connection.Close();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                DataRowView drv = (DataRowView)dgvMetadataItems.SelectedRows[0].DataBoundItem;
+                int metadata_item_id = int.Parse(drv["id"].ToString());
+                dgvActors.DataSource = Database.GetActors(metadata_item_id);
+                dgvActors.ClearSelection();
             }
         }
     }
