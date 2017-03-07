@@ -2,11 +2,40 @@
 using System.Data;
 using System.IO;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace PlexCastEditor
 {
     public partial class Form1 : Form
-    {    
+    {
+        private AutoCompleteStringCollection _actorsAutoComplete = new AutoCompleteStringCollection();
+        private DataTable _actorsTable = null;
+         
+        public long LibrarySectionId
+        {
+            get
+            {
+                DataRowView drv = (DataRowView)cmbLIbraries.SelectedItem;
+                return long.Parse(drv["id"].ToString());
+            }
+        }
+
+        public long MetadataItemId
+        {
+            get
+            {
+                long id = -1;
+
+                if (dgvMetadataItems.SelectedRows.Count > 0)
+                {
+                    DataRowView drv = (DataRowView)dgvMetadataItems.SelectedRows[0].DataBoundItem;
+                    id = long.Parse(drv["id"].ToString());
+                }
+
+                return id;
+            }
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -19,26 +48,39 @@ namespace PlexCastEditor
             //ofdDatabase.Filter = "db files (*.db)|*.db|All files (*.*)|*.*";
             //ofdDatabase.Multiselect = false;
             Database.DBFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases\\com.plexapp.plugins.library.db");
-            UpdateLibraries();
-            UpdateActorAutoComplete();
+            GetLibraries();
+            GetActorAutoComplete();
         }
 
         private void cmbLibraries_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdateMetadataItems();
+            GetMetadataItems();
         }
         
         private void dgvMetadataItems_SelectionChanged(object sender, EventArgs e)
         {
-            UpdateActors();
+            GetActors();
+            gbActors.Enabled = true;
         }
 
         private void btnAddActor_Click(object sender, EventArgs e)
         {
-            long actor_id = Database.CreateActor(txtActor.Text.Trim());
+            string actor = txtActor.Text.Trim();
+            if (!_actorsAutoComplete.Contains(actor))
+            {
+                _actorsAutoComplete.Add(actor);
+            }
+
+            if (!_actorsTable.AsEnumerable().Any(r => r.Field<String>("tag") == actor))
+            {
+                DataRow row = _actorsTable.NewRow();
+                row["id"] = -1;
+                row["tag"] = actor;
+                row["index"] = 0;
+                _actorsTable.Rows.Add(row);
+            }
+
             txtActor.Clear();
-            UpdateActorAutoComplete();
-            UpdateActors();
         }
 
         private void InitializeControls()
@@ -57,41 +99,41 @@ namespace PlexCastEditor
             dgvActors.AllowUserToAddRows = false;
             dgvActors.MultiSelect = false;
             dgvActors.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+
+            gbActors.Enabled = false;
         }
 
-        private void UpdateLibraries()
+        private void GetLibraries()
         {
             cmbLIbraries.SelectedIndexChanged -= new EventHandler(cmbLibraries_SelectedIndexChanged);
             cmbLIbraries.DataSource = Database.GetLibrarySections();
             cmbLIbraries.SelectedIndexChanged += new EventHandler(cmbLibraries_SelectedIndexChanged);
         }
 
-        private void UpdateMetadataItems()
+        private void GetActorAutoComplete()
         {
-            DataRowView drv = (DataRowView)cmbLIbraries.SelectedItem;
-            int metadata_item_id = int.Parse(drv["id"].ToString());
-            dgvMetadataItems.DataSource = Database.GetMetadataItems(metadata_item_id);
-            dgvMetadataItems.ClearSelection();
-        }
-
-        private void UpdateActorAutoComplete()
-        {
-            AutoCompleteStringCollection actorsAutoComplete = new AutoCompleteStringCollection();
-            actorsAutoComplete.AddRange(Database.GetAllActors());
+            _actorsAutoComplete.AddRange(Database.GetAllActors());
             txtActor.AutoCompleteMode = AutoCompleteMode.Suggest;
             txtActor.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            txtActor.AutoCompleteCustomSource = actorsAutoComplete;
+            txtActor.AutoCompleteCustomSource = _actorsAutoComplete;
         }
 
-        private void UpdateActors()
+        private void GetMetadataItems()
         {
-            if (dgvMetadataItems.SelectedRows.Count > 0)
-            {
-                DataRowView drv = (DataRowView)dgvMetadataItems.SelectedRows[0].DataBoundItem;
-                int metadata_item_id = int.Parse(drv["id"].ToString());
-                dgvActors.DataSource = Database.GetActors(metadata_item_id);
-                dgvActors.ClearSelection();
-            }
+            dgvMetadataItems.SelectionChanged -= new EventHandler(dgvMetadataItems_SelectionChanged);
+            dgvMetadataItems.DataSource = Database.GetMetadataItems(LibrarySectionId);
+            dgvMetadataItems.ClearSelection();
+            _actorsTable = null;
+            dgvActors.DataSource = _actorsTable;
+            gbActors.Enabled = false;
+            dgvMetadataItems.SelectionChanged += new EventHandler(dgvMetadataItems_SelectionChanged);
+        }
+
+        private void GetActors()
+        {
+            _actorsTable = Database.GetActors(MetadataItemId);
+            dgvActors.DataSource = _actorsTable;
+            dgvActors.ClearSelection();
         }
     }
 }

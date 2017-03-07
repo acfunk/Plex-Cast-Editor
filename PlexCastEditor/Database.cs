@@ -33,7 +33,7 @@ namespace PlexCastEditor
             return table;
         }
 
-        public static DataTable GetMetadataItems(int librarySectionId)
+        public static DataTable GetMetadataItems(long librarySectionId)
         {
             var table = new DataTable();
             StringBuilder sb = new StringBuilder();
@@ -69,7 +69,7 @@ namespace PlexCastEditor
             return table;
         }
 
-        public static DataTable GetActors(int metadataItemId)
+        public static DataTable GetActors(long metadataItemId)
         {
             var table = new DataTable();
             StringBuilder sb = new StringBuilder();
