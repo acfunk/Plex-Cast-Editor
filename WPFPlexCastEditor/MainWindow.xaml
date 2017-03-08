@@ -7,17 +7,23 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d" 
     x:Class="WPFPlexCastEditor.MainWindow"
-    Title="Plex Cast Editor" MinWidth="500" MinHeight="300"
+    Title="Plex Cast Editor" 
+    MinWidth="500" 
+    MinHeight="300"
     WindowStyle="SingleBorderWindow">
+    
     <Window.Resources>
         <collections:ActorCollection x:Key="ActorList"/>
     </Window.Resources>
+    
     <Grid DataContext="{Binding Source={StaticResource ActorList}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="180" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="210" />
         </Grid.ColumnDefinitions>
+
+        <!-- Libraries-->
         <StackPanel Grid.Column="0" Orientation="Vertical" Background="#FF54456C">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Libraries</Label>
             <ListView Name="lvLibrarySections" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="Transparent">
@@ -28,6 +34,8 @@
                 </ListView.ItemTemplate>
             </ListView>
         </StackPanel>
+
+        <!-- Items -->
         <ListView Grid.Column="1" Name="lvThumbnails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" BorderThickness="0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -48,6 +56,8 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
+        <!-- Cast -->
         <StackPanel Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
             <DataGrid d:LayoutOverrides="Width" Name="dgActors"
@@ -60,5 +70,6 @@
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
+
     </Grid>
 </Window>
