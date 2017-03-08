@@ -78,7 +78,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ThumbnailCollection.cs" />
+    <Compile Include="Collections\LibraryCollection.cs" />
+    <Compile Include="Collections\ThumbnailCollection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -94,7 +95,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActorCollection.cs" />
+    <Compile Include="Collections\ActorCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
