@@ -8,36 +8,36 @@ using System.Windows.Media;
 
 namespace WPFPlexCastEditor
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public delegate Point GetPosition(IInputElement element);
         int rowIndex = -1;
+
         public MainWindow()
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
-            cmbLibrarySections.SelectionChanged += cmbLibrarySections_SelectionChanged;
+            lvLibrarySections.SelectionChanged += LvLibrarySections_SelectionChanged;
             actorsDataGrid.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(actorsDataGrid_PreviewMouseLeftButtonDown);
             actorsDataGrid.Drop += new DragEventHandler(actorsDataGrid_Drop);
-            
+        }
+
+        private void LvLibrarySections_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lvThumbnails.ItemsSource = new ThumbnailCollection();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Database.DBFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases\\com.plexapp.plugins.library.db");
-            cmbLibrarySections.ItemsSource = Database.GetLibrarySections().DefaultView;
+            lvLibrarySections.ItemsSource = Database.GetLibrarySections().DefaultView;
         }
 
         private void cmbLibrarySections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             lvThumbnails.ItemsSource = new ThumbnailCollection();
         }
-
-
-
+        
         void actorsDataGrid_Drop(object sender, DragEventArgs e)
         {
             if (rowIndex < 0)
@@ -101,7 +101,5 @@ namespace WPFPlexCastEditor
             }
             return curIndex;
         }
-
-        
     }
 }
