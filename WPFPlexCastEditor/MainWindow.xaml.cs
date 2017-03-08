@@ -103,10 +103,9 @@ namespace WPFPlexCastEditor
             if (index == _rowIndex)
                 return;
 
-            ActorCollection actorCollection = Resources["ActorList"] as ActorCollection;
-            Actor changedProduct = actorCollection[_rowIndex];
-            actorCollection.RemoveAt(_rowIndex);
-            actorCollection.Insert(index, changedProduct);
+            Actor changedProduct = _actorCollection[_rowIndex];
+            _actorCollection.RemoveAt(_rowIndex);
+            _actorCollection.Insert(index, changedProduct);
         }
 
         void actorsDataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -117,16 +116,16 @@ namespace WPFPlexCastEditor
                 return;
 
             dgActors.SelectedIndex = _rowIndex;
-            Actor selectedEmp = dgActors.Items[_rowIndex] as Actor;
+            Actor selectedActor = dgActors.Items[_rowIndex] as Actor;
 
-            if (selectedEmp == null)
+            if (selectedActor == null)
                 return;
 
             DragDropEffects dragdropeffects = DragDropEffects.Move;
 
-            if (DragDrop.DoDragDrop(dgActors, selectedEmp, dragdropeffects) != DragDropEffects.None)
+            if (DragDrop.DoDragDrop(dgActors, selectedActor, dragdropeffects) != DragDropEffects.None)
             {
-                dgActors.SelectedItem = selectedEmp;
+                dgActors.SelectedItem = selectedActor;
             }
         }
 
