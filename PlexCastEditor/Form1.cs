@@ -3,6 +3,7 @@ using System.Data;
 using System.IO;
 using System.Windows.Forms;
 using System.Linq;
+using System.Drawing;
 
 namespace PlexCastEditor
 {
@@ -10,7 +11,11 @@ namespace PlexCastEditor
     {
         private AutoCompleteStringCollection _actorsAutoComplete = new AutoCompleteStringCollection();
         private DataTable _actorsTable = null;
-         
+        private int _rowIndexFromMouseDown;
+        private Rectangle _dragBoxFromMouseClick;
+        private DataRow _oldRow;
+        private DataRow _newRow;
+
         public long LibrarySectionId
         {
             get
@@ -91,6 +96,7 @@ namespace PlexCastEditor
             dgvMetadataItems.AutoGenerateColumns = true;
             dgvMetadataItems.ReadOnly = true;
             dgvMetadataItems.AllowUserToAddRows = false;
+            dgvMetadataItems.AllowUserToDeleteRows = false;
             dgvMetadataItems.MultiSelect = false;
             dgvMetadataItems.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
@@ -98,6 +104,7 @@ namespace PlexCastEditor
             dgvActors.ReadOnly = true;
             dgvActors.AllowUserToAddRows = false;
             dgvActors.MultiSelect = false;
+            dgvActors.AllowDrop = true;
             dgvActors.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             gbActors.Enabled = false;
@@ -134,6 +141,71 @@ namespace PlexCastEditor
             _actorsTable = Database.GetActors(MetadataItemId);
             dgvActors.DataSource = _actorsTable;
             dgvActors.ClearSelection();
+            foreach (DataGridViewColumn column in dgvActors.Columns)
+            {
+                column.SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+        }
+
+        private void dgvActors_MouseMove(object sender, MouseEventArgs e)
+        {
+            if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+            {
+                // If the mouse moves outside the rectangle, start the drag.
+                if (_dragBoxFromMouseClick != Rectangle.Empty &&
+                    !_dragBoxFromMouseClick.Contains(e.X, e.Y))
+                {
+                    // Proceed with the drag and drop, passing in the list item.                    
+                    DragDropEffects dropEffect = dgvActors.DoDragDrop(
+                    dgvActors.Rows[_rowIndexFromMouseDown],
+                    DragDropEffects.Move);
+                }
+            }
+        }
+
+        private void dgvActors_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (dgvActors.SelectedRows.Count == 1)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    _oldRow = ((DataRowView)dgvActors.SelectedRows[0].DataBoundItem).Row;
+                    _newRow = _actorsTable.NewRow();
+                    _newRow.ItemArray = _oldRow.ItemArray;
+                    _rowIndexFromMouseDown = dgvActors.SelectedRows[0].Index;
+                    dgvActors.DoDragDrop(_oldRow, DragDropEffects.Move);
+
+                    if (_rowIndexFromMouseDown >= 0)
+                    {
+                        Size dragSize = SystemInformation.DragSize;
+                        _dragBoxFromMouseClick = new Rectangle(new Point(
+                            e.X - (dragSize.Width / 2)
+                            , e.Y - (dragSize.Height / 2))
+                            , dragSize);
+                    }
+                    else
+                    {
+                        _dragBoxFromMouseClick = Rectangle.Empty;
+                    }
+                }
+            }
+        }
+        
+        private void dgvActors_DragDrop(object sender, DragEventArgs e)
+        {
+            Point clientPoint = dgvActors.PointToClient(new Point(e.X, e.Y));
+            int rowIndexOfItemUnderMouseToDrop = dgvActors.HitTest(clientPoint.X, clientPoint.Y).RowIndex;
+
+            if (rowIndexOfItemUnderMouseToDrop >= 0 && e.Effect == DragDropEffects.Move)
+            {
+                _actorsTable.Rows.Remove(_oldRow);
+                _actorsTable.Rows.InsertAt(_newRow, rowIndexOfItemUnderMouseToDrop);
+            }
+        }
+
+        private void dgvActors_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
         }
     }
 }

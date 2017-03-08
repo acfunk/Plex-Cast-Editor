@@ -36,9 +36,9 @@
             this.txtActor = new System.Windows.Forms.TextBox();
             this.btnAddActor = new System.Windows.Forms.Button();
             this.gbActors = new System.Windows.Forms.GroupBox();
-            this.gbItems = new System.Windows.Forms.GroupBox();
-            this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.gbItems = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetadataItems)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvActors)).BeginInit();
             this.gbActors.SuspendLayout();
@@ -80,6 +80,10 @@
             this.dgvActors.RowTemplate.Height = 31;
             this.dgvActors.Size = new System.Drawing.Size(1479, 283);
             this.dgvActors.TabIndex = 6;
+            this.dgvActors.DragDrop += new System.Windows.Forms.DragEventHandler(this.dgvActors_DragDrop);
+            this.dgvActors.DragOver += new System.Windows.Forms.DragEventHandler(this.dgvActors_DragOver);
+            this.dgvActors.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dgvActors_MouseDown);
+            this.dgvActors.MouseMove += new System.Windows.Forms.MouseEventHandler(this.dgvActors_MouseMove);
             // 
             // txtActor
             // 
@@ -112,15 +116,14 @@
             this.gbActors.TabStop = false;
             this.gbActors.Text = "Actors";
             // 
-            // gbItems
+            // btnCancel
             // 
-            this.gbItems.Controls.Add(this.dgvMetadataItems);
-            this.gbItems.Location = new System.Drawing.Point(23, 108);
-            this.gbItems.Name = "gbItems";
-            this.gbItems.Size = new System.Drawing.Size(1507, 332);
-            this.gbItems.TabIndex = 10;
-            this.gbItems.TabStop = false;
-            this.gbItems.Text = "Items";
+            this.btnCancel.Location = new System.Drawing.Point(1274, 368);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(215, 56);
+            this.btnCancel.TabIndex = 10;
+            this.btnCancel.Text = "CANCEL";
+            this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // btnSave
             // 
@@ -131,14 +134,15 @@
             this.btnSave.Text = "SAVE";
             this.btnSave.UseVisualStyleBackColor = true;
             // 
-            // btnCancel
+            // gbItems
             // 
-            this.btnCancel.Location = new System.Drawing.Point(1274, 368);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(215, 56);
-            this.btnCancel.TabIndex = 10;
-            this.btnCancel.Text = "CANCEL";
-            this.btnCancel.UseVisualStyleBackColor = true;
+            this.gbItems.Controls.Add(this.dgvMetadataItems);
+            this.gbItems.Location = new System.Drawing.Point(23, 108);
+            this.gbItems.Name = "gbItems";
+            this.gbItems.Size = new System.Drawing.Size(1507, 332);
+            this.gbItems.TabIndex = 10;
+            this.gbItems.TabStop = false;
+            this.gbItems.Text = "Items";
             // 
             // Form1
             // 
