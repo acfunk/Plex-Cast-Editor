@@ -4,6 +4,12 @@
              xmlns:local="clr-namespace:WPFPlexCastEditor"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <DataTemplate x:Key="AutoCompleteActorTemplate">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{Binding tag}" Width="100" />
+                </StackPanel>
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

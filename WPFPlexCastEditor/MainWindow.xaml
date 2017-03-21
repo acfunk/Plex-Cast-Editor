@@ -4,18 +4,19 @@
     xmlns:local="clr-namespace:WPFPlexCastEditor"
     xmlns:collections="clr-namespace:WPFPlexCastEditor.Collections"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
     mc:Ignorable="d" 
     x:Class="WPFPlexCastEditor.MainWindow"
     Title="Plex Cast Editor" 
     MinWidth="500" 
     MinHeight="300"
     WindowStyle="SingleBorderWindow">
-    
+
     <Window.Resources>
         <collections:ActorCollection x:Key="ActorList"/>
     </Window.Resources>
-    
+
     <Grid DataContext="{Binding Source={StaticResource ActorList}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="180" />
@@ -59,17 +60,65 @@
 
         <!-- Cast -->
         <StackPanel Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
+            <ListBox Name="lvActors" HorizontalAlignment="Stretch" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Name="tbActor" Grid.Column="0" Text="{Binding tag}" HorizontalAlignment="Stretch" />
+                            <Image Name="btnRemoveActor" Grid.Column="1" HorizontalAlignment="Right" MouseUp="btnRemoveActor_MouseUp"  Source="Images/delete-512.png" Width="16" Height="16"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
-            <DataGrid d:LayoutOverrides="Width" Name="dgActors"
-                      AutoGenerateColumns="False" ItemsSource="{Binding}" 
-                      SelectionMode="Extended" ColumnWidth="*" AllowDrop="True"
-                      CanUserSortColumns="False" BorderThickness="0" HeadersVisibility="None"
-                      CanUserAddRows="False">
+            <!--<DataGrid Name="dgActors"
+                      ItemsSource="{Binding ActorCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      AutoGenerateColumns="False" 
+                      ColumnWidth="*" 
+                      AllowDrop="True"
+                      CanUserSortColumns="False" 
+                      BorderThickness="0" 
+                      HeadersVisibility="None"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="True"
+                      GridLinesVisibility="None"
+                      SelectionMode="Single">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding tag}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding tag}" IsReadOnly="True" Width="*"></DataGridTextColumn>
+                    <DataGridTemplateColumn Width="16">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Command="Delete">
+                                    <Button.Template>
+                                        <ControlTemplate>
+                                            <Border HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Image Source="Images/delete-512.png" Width="16" Height="16"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
+            </DataGrid>-->
 
+            <toolkit:AutoCompleteBox Name="autoActors" 
+                                     SelectedItem="{Binding SelectedActor, Mode=TwoWay}"
+                                     Text="{Binding SelectedActor}" 
+                                     IsTextCompletionEnabled="True" 
+                                     FilterMode="Contains"
+                                     ValueMemberPath="tag"
+                                     ItemTemplate="{StaticResource AutoCompleteActorTemplate}"
+                                     DropDownClosed="autoActors_DropDownClosed"/>
+            <Button x:Name="btnAddActor" Content="Add Actor" />
+        </StackPanel>
     </Grid>
 </Window>

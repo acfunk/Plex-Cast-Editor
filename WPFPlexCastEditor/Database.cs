@@ -98,13 +98,13 @@ namespace WPFPlexCastEditor
             return table;
         }
 
-        public static string[] GetAllActors()
+        public static DataTable GetAllActors()
         {
             var table = new DataTable();
 
             using (var connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", DBFile)))
             {
-                using (SQLiteCommand command = new SQLiteCommand("SELECT tag FROM tags WHERE tag_type = 6;", connection))
+                using (SQLiteCommand command = new SQLiteCommand("SELECT id, tag FROM tags WHERE tag_type = 6;", connection))
                 {
                     connection.Open();
                     using (SQLiteDataReader reader = command.ExecuteReader())
@@ -115,7 +115,7 @@ namespace WPFPlexCastEditor
                 }
             }
 
-            return table.AsEnumerable().Select(r => r.Field<string>("tag")).ToArray();
+            return table;
         }
 
         public static long CreateActor(string actor)

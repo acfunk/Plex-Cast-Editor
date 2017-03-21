@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
-using WPFPlexCastEditor.Collections;
-using System.Data;
 using System.Windows.Media.Imaging;
+using WPFPlexCastEditor.Collections;
 
 namespace WPFPlexCastEditor
 {
@@ -15,18 +14,18 @@ namespace WPFPlexCastEditor
     {
         LibraryCollection _libraryCollection = new LibraryCollection();
         ThumbnailCollection _thumbnailCollection = new ThumbnailCollection();
-        ActorCollection _actorCollection = new ActorCollection();
-        public delegate Point GetPosition(IInputElement element);
-        private int _rowIndex = -1;
+        public ActorCollection ActorCollection { get; set; }
+        ActorCollection _addActorCollection = new ActorCollection();
+        public string SelectedActor { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
             Loaded += MainWindow_Loaded;
             lvLibrarySections.SelectionChanged += lvLibrarySections_SelectionChanged;
             lvThumbnails.SelectionChanged += lvThumbnails_SelectionChanged;
-            dgActors.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(actorsDataGrid_PreviewMouseLeftButtonDown);
-            dgActors.Drop += new DragEventHandler(actorsDataGrid_Drop);
+            ActorCollection = new ActorCollection();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -35,7 +34,8 @@ namespace WPFPlexCastEditor
             LoadLibraryCollection();
             lvLibrarySections.ItemsSource = _libraryCollection;
             lvThumbnails.ItemsSource = _thumbnailCollection;
-            dgActors.ItemsSource = _actorCollection;
+            lvActors.ItemsSource = ActorCollection;
+            autoActors.ItemsSource = _addActorCollection;
         }
 
         private void lvLibrarySections_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -58,7 +58,8 @@ namespace WPFPlexCastEditor
         {
             _libraryCollection.Clear();
             _thumbnailCollection.Clear();
-            _actorCollection.Clear();
+            ActorCollection.Clear();
+            _addActorCollection.Clear();
 
             foreach (DataRow row in Database.GetLibrarySections().Rows)
             {
@@ -69,7 +70,8 @@ namespace WPFPlexCastEditor
         private void LoadThumbnailCollection(long library_id)
         {
             _thumbnailCollection.Clear();
-            _actorCollection.Clear();
+            ActorCollection.Clear();
+            _addActorCollection.Clear();
 
             foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
             {
@@ -81,86 +83,48 @@ namespace WPFPlexCastEditor
 
         private void LoadActorCollection(long item_id)
         {
-            _actorCollection.Clear();
+            ActorCollection.Clear();
+            _addActorCollection.Clear();
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
             {
-                _actorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
+                ActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
             }
+
+            LoadAddActorCollection();
         }
 
-        #region Drag and Drop Actors
-        void actorsDataGrid_Drop(object sender, DragEventArgs e)
+        private void LoadAddActorCollection()
         {
-            if (_rowIndex < 0)
-                return;
+            _addActorCollection.Clear();
 
-            int index = this.GetCurrentRowIndex(e.GetPosition);
-
-            if (index < 0)
-                return;
-
-            if (index == _rowIndex)
-                return;
-
-            Actor changedProduct = _actorCollection[_rowIndex];
-            _actorCollection.RemoveAt(_rowIndex);
-            _actorCollection.Insert(index, changedProduct);
-        }
-
-        void actorsDataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            _rowIndex = GetCurrentRowIndex(e.GetPosition);
-
-            if (_rowIndex < 0)
-                return;
-
-            dgActors.SelectedIndex = _rowIndex;
-            Actor selectedActor = dgActors.Items[_rowIndex] as Actor;
-
-            if (selectedActor == null)
-                return;
-
-            DragDropEffects dragdropeffects = DragDropEffects.Move;
-
-            if (DragDrop.DoDragDrop(dgActors, selectedActor, dragdropeffects) != DragDropEffects.None)
+            foreach (DataRow row in Database.GetAllActors().Rows)
             {
-                dgActors.SelectedItem = selectedActor;
-            }
-        }
-
-        private bool GetMouseTargetRow(Visual theTarget, GetPosition position)
-        {
-            Rect rect = VisualTreeHelper.GetDescendantBounds(theTarget);
-            Point point = position((IInputElement)theTarget);
-            return rect.Contains(point);
-        }
-
-        private DataGridRow GetRowItem(int index)
-        {
-            if (dgActors.ItemContainerGenerator.Status != GeneratorStatus.ContainersGenerated)
-                return null;
-
-            return dgActors.ItemContainerGenerator.ContainerFromIndex(index) as DataGridRow;
-        }
-
-        private int GetCurrentRowIndex(GetPosition pos)
-        {
-            int curIndex = -1;
-
-            for (int i = 0; i < dgActors.Items.Count; i++)
-            {
-                DataGridRow itm = GetRowItem(i);
-
-                if (GetMouseTargetRow(itm, pos))
+                if (!ActorCollection.AsEnumerable().Any(x => x.tag == row.Field<string>("tag")))
                 {
-                    curIndex = i;
-                    break;
+                    _addActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
                 }
             }
-
-            return curIndex;
         }
-        #endregion Drag and Drop Actors
+
+        private void autoActors_DropDownClosed(object sender, RoutedPropertyChangedEventArgs<bool> e)
+        {
+            Actor actor = (Actor)autoActors.SelectedItem;
+            string searchText = autoActors.SearchText;
+            
+            if (autoActors.SelectedItem != null)
+            {
+                btnAddActor.Content = "Add: " + actor.tag;
+            }
+            else if (string.IsNullOrWhiteSpace(searchText))
+            {
+                btnAddActor.Content = "Add: " + searchText.Trim();
+            }
+        }
+
+        private void btnRemoveActor_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }
