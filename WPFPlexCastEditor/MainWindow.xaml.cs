@@ -75,8 +75,16 @@ namespace WPFPlexCastEditor
 
             foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
             {
+                string user_thumb_url = row["user_thumb_url"].ToString();
                 string thumbnailPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server/Media/localhost/" + row["user_thumb_url"].ToString().Replace("media://", ""));
-                BitmapImage bitmapImage = new BitmapImage(new Uri(thumbnailPath));
+                Uri uri = new Uri(thumbnailPath);
+
+                if (!user_thumb_url.StartsWith("media://"))
+                {
+                    uri = new Uri("pack://application:,,,/WPFPlexCastEditor;component/Images/movie.png", UriKind.Absolute);
+                }
+                
+                BitmapImage bitmapImage = new BitmapImage(uri);
                 _thumbnailCollection.Add(new Thumbnail() { id = long.Parse(row["id"].ToString()), title = row["title"].ToString(), thumbnail = bitmapImage });
             }
         }
