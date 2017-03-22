@@ -14,7 +14,7 @@ namespace WPFPlexCastEditor
 
             using (var connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", DBFile)))
             {
-                using (SQLiteCommand command = new SQLiteCommand("SELECT id, name FROM library_sections;", connection))
+                using (SQLiteCommand command = new SQLiteCommand("SELECT id, name FROM library_sections WHERE section_type IN (1,2);", connection))
                 {
                     connection.Open();
                     using (SQLiteDataReader reader = command.ExecuteReader())
@@ -45,6 +45,7 @@ namespace WPFPlexCastEditor
             sb.AppendLine("	ON ti.tag_id = t.id");
             sb.AppendLine("	AND t.tag_type = 6");
             sb.AppendLine("WHERE mi.library_section_id = @library_section_id");
+            sb.AppendLine(" AND mi.metadata_type IN (1,2)");
             sb.AppendLine("GROUP BY mi.id;");
 
             using (var connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", DBFile)))
@@ -72,12 +73,10 @@ namespace WPFPlexCastEditor
             sb.AppendLine(" t.id");
             sb.AppendLine(" ,t.tag");
             sb.AppendLine(" ,ti.[index]");
-            sb.AppendLine("FROM metadata_items mi");
-            sb.AppendLine("JOIN taggings ti");
-            sb.AppendLine(" ON mi.id = ti.metadata_item_id");
+            sb.AppendLine("FROM taggings ti");
             sb.AppendLine("JOIN tags t");
             sb.AppendLine(" ON ti.tag_id = t.id");
-            sb.AppendLine("WHERE mi.id = @metadata_item_id");
+            sb.AppendLine("WHERE ti.metadata_item_id = @metadata_item_id");
             sb.AppendLine(" AND t.tag_type = 6");
             sb.AppendLine("ORDER by ti.[index];");
 
