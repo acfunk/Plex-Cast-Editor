@@ -5,134 +5,122 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using WPFPlexCastEditor.Collections;
 
 namespace WPFPlexCastEditor
 {
     public partial class MainWindow : Window
     {
-        LibraryCollection _libraryCollection = new LibraryCollection();
-        ThumbnailCollection _thumbnailCollection = new ThumbnailCollection();
+        public LibraryCollection LibraryCollection { get; set; }
+        public MovieCollection MovieCollection { get; set; }
         public ActorCollection ActorCollection { get; set; }
-        ActorCollection _addActorCollection = new ActorCollection();
-        public string SelectedActor { get; set; }
+        public ActorCollection AutoActorCollection { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = this;
-            Loaded += MainWindow_Loaded;
-            lvLibrarySections.SelectionChanged += lvLibrarySections_SelectionChanged;
-            lvThumbnails.SelectionChanged += lvThumbnails_SelectionChanged;
+            LibraryCollection = new LibraryCollection();
+            MovieCollection = new MovieCollection();
             ActorCollection = new ActorCollection();
+            AutoActorCollection = new ActorCollection();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            this.DataContext = this;
             Database.DBFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases\\com.plexapp.plugins.library.db");
-            LoadLibraryCollection();
-            lvLibrarySections.ItemsSource = _libraryCollection;
-            lvThumbnails.ItemsSource = _thumbnailCollection;
+            lvLibrarySections.ItemsSource = LibraryCollection;
+            lvMovies.ItemsSource = MovieCollection;
             lvActors.ItemsSource = ActorCollection;
-            autoActors.ItemsSource = _addActorCollection;
+            autoActors.ItemsSource = AutoActorCollection;
+            LoadLibraryCollection();
+            LoadAutoActorCollection();
         }
 
         private void lvLibrarySections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (lvLibrarySections.SelectedItem != null)
             {
-                LoadThumbnailCollection(((Library)lvLibrarySections.SelectedItem).id);
+                LoadMovieCollection(((Library)lvLibrarySections.SelectedItem).id);
             }
         }
 
-        private void lvThumbnails_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void lvMovies_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lvThumbnails.SelectedItem != null)
+            if (lvMovies.SelectedItem != null)
             {
-                LoadActorCollection(((Thumbnail)lvThumbnails.SelectedItem).id);
+                LoadActorCollection(((Movie)lvMovies.SelectedItem).id);
             }
         }
 
         private void LoadLibraryCollection()
         {
-            _libraryCollection.Clear();
-            _thumbnailCollection.Clear();
+            LibraryCollection.Clear();
+            spLibraries.Visibility = Visibility.Visible;
+            MovieCollection.Clear();
+            spMovies.Visibility = Visibility.Collapsed;
             ActorCollection.Clear();
-            _addActorCollection.Clear();
+            spCast.Visibility = Visibility.Collapsed;
 
             foreach (DataRow row in Database.GetLibrarySections().Rows)
             {
-                _libraryCollection.Add(new Library() { id = long.Parse(row["id"].ToString()), name = row["name"].ToString() });
+                LibraryCollection.Add(new Library() { id = long.Parse(row["id"].ToString()), name = row["name"].ToString() });
             }
         }
 
-        private void LoadThumbnailCollection(long library_id)
+        private void LoadMovieCollection(long library_id)
         {
-            _thumbnailCollection.Clear();
+            MovieCollection.Clear();
+            spMovies.Visibility = Visibility.Visible;
             ActorCollection.Clear();
-            _addActorCollection.Clear();
+            spCast.Visibility = Visibility.Collapsed;
 
             foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
-            {
-                string user_thumb_url = row["user_thumb_url"].ToString();
-                string thumbnailPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server/Media/localhost/" + row["user_thumb_url"].ToString().Replace("media://", ""));
-                Uri uri = new Uri(thumbnailPath);
-
-                if (!user_thumb_url.StartsWith("media://"))
-                {
-                    uri = new Uri("pack://application:,,,/WPFPlexCastEditor;component/Images/movie.png", UriKind.Absolute);
-                }
-                
-                BitmapImage bitmapImage = new BitmapImage(uri);
-                _thumbnailCollection.Add(new Thumbnail() { id = long.Parse(row["id"].ToString()), title = row["title"].ToString(), thumbnail = bitmapImage });
+            {   
+                MovieCollection.Add(new Movie() { id = long.Parse(row["id"].ToString()), title = row["title"].ToString() });
             }
         }
 
         private void LoadActorCollection(long item_id)
         {
             ActorCollection.Clear();
-            _addActorCollection.Clear();
+            spCast.Visibility = Visibility.Visible;
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
             {
                 ActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
             }
-
-            LoadAddActorCollection();
         }
 
-        private void LoadAddActorCollection()
+        private void LoadAutoActorCollection()
         {
-            _addActorCollection.Clear();
-
             foreach (DataRow row in Database.GetAllActors().Rows)
             {
                 if (!ActorCollection.AsEnumerable().Any(x => x.tag == row.Field<string>("tag")))
                 {
-                    _addActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
+                    AutoActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
                 }
-            }
-        }
-
-        private void autoActors_DropDownClosed(object sender, RoutedPropertyChangedEventArgs<bool> e)
-        {
-            Actor actor = (Actor)autoActors.SelectedItem;
-            string searchText = autoActors.SearchText;
-            
-            if (autoActors.SelectedItem != null)
-            {
-                btnAddActor.Content = "Add: " + actor.tag;
-            }
-            else if (string.IsNullOrWhiteSpace(searchText))
-            {
-                btnAddActor.Content = "Add: " + searchText.Trim();
             }
         }
 
         private void btnRemoveActor_MouseUp(object sender, MouseButtonEventArgs e)
         {
 
+        }
+
+        private void autoActors_TextChanged(object sender, RoutedEventArgs e)
+        {
+            string text = autoActors.Text;
+            Actor selectedActor = (Actor)autoActors.SelectedItem;
+
+            if (selectedActor != null && text.Trim().Equals(selectedActor.tag, StringComparison.InvariantCultureIgnoreCase))
+            {
+                btnAddActor.Content = "Add: " + selectedActor.tag;
+            }
+            else if (!string.IsNullOrWhiteSpace(text))
+            {
+                btnAddActor.Content = "Create: " + text.Trim();
+            }
         }
     }
 }

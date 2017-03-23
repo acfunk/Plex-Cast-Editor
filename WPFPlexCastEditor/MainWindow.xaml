@@ -1,33 +1,33 @@
 ﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:WPFPlexCastEditor"
-    xmlns:collections="clr-namespace:WPFPlexCastEditor.Collections"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
+    xmlns:collections="clr-namespace:WPFPlexCastEditor.Collections"
     mc:Ignorable="d" 
     x:Class="WPFPlexCastEditor.MainWindow"
     Title="Plex Cast Editor" 
-    MinWidth="500" 
+    MinWidth="400" 
     MinHeight="300"
-    WindowStyle="SingleBorderWindow">
+    WindowStyle="SingleBorderWindow"
+    Loaded="MainWindow_Loaded">
 
     <Window.Resources>
         <collections:ActorCollection x:Key="ActorList"/>
     </Window.Resources>
 
-    <Grid DataContext="{Binding Source={StaticResource ActorList}}">
+    <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="210" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
         <!-- Libraries-->
-        <StackPanel Grid.Column="0" Orientation="Vertical" Background="#FF54456C">
+        <StackPanel Name="spLibraries" Grid.Column="0" Orientation="Vertical" Background="#FF54456C">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Libraries</Label>
-            <ListView Name="lvLibrarySections" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="Transparent">
+            <ListView Name="lvLibrarySections" SelectionChanged="lvLibrarySections_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="Transparent">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Label Content="{Binding name}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="WhiteSmoke" />
@@ -36,31 +36,24 @@
             </ListView>
         </StackPanel>
 
-        <!-- Items -->
-        <ListView Grid.Column="1" Name="lvThumbnails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" BorderThickness="0">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <Image Source="{Binding thumbnail}" VerticalAlignment="Top" HorizontalAlignment="Center" Stretch="UniformToFill" MaxWidth="100" MaxHeight="100"/>
-                        <TextBlock Text="{Binding title}" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <!-- Movies -->
+        <StackPanel Name="spMovies" Grid.Column="1" Orientation="Vertical">
+            <Label FontWeight="Bold" FontSize="18" Foreground="#FF54456C">Movies</Label>
+            <ListView Name="lvMovies" SelectionChanged="lvMovies_SelectionChanged" HorizontalAlignment="Stretch" BorderThickness="0">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Foreground="#FF54456C" Text="{Binding title}" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
 
         <!-- Cast -->
-        <StackPanel Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
-            <ListBox Name="lvActors" HorizontalAlignment="Stretch" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch">
+        <StackPanel Name="spCast" Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
+            <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
+            <ListBox Name="lvActors" HorizontalAlignment="Stretch" DataContext="{Binding Source={StaticResource ActorList}}" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid HorizontalAlignment="Stretch">
@@ -77,47 +70,12 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
-            <!--<DataGrid Name="dgActors"
-                      ItemsSource="{Binding ActorCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      AutoGenerateColumns="False" 
-                      ColumnWidth="*" 
-                      AllowDrop="True"
-                      CanUserSortColumns="False" 
-                      BorderThickness="0" 
-                      HeadersVisibility="None"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="True"
-                      GridLinesVisibility="None"
-                      SelectionMode="Single">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding tag}" IsReadOnly="True" Width="*"></DataGridTextColumn>
-                    <DataGridTemplateColumn Width="16">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Command="Delete">
-                                    <Button.Template>
-                                        <ControlTemplate>
-                                            <Border HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                <Image Source="Images/delete-512.png" Width="16" Height="16"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>-->
-
             <toolkit:AutoCompleteBox Name="autoActors" 
-                                     SelectedItem="{Binding SelectedActor, Mode=TwoWay}"
-                                     Text="{Binding SelectedActor}" 
-                                     IsTextCompletionEnabled="True" 
-                                     FilterMode="Contains"
-                                     ValueMemberPath="tag"
                                      ItemTemplate="{StaticResource AutoCompleteActorTemplate}"
-                                     DropDownClosed="autoActors_DropDownClosed"/>
+                                     ValueMemberPath="tag"
+                                     FilterMode="StartsWith"
+                                     IsTextCompletionEnabled="True"
+                                     TextChanged="autoActors_TextChanged"/>
             <Button x:Name="btnAddActor" Content="Add Actor" />
         </StackPanel>
     </Grid>
