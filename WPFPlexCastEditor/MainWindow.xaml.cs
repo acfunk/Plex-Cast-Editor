@@ -56,11 +56,12 @@ namespace WPFPlexCastEditor
         private void LoadLibraryCollection()
         {
             LibraryCollection.Clear();
-            spLibraries.Visibility = Visibility.Visible;
+            ContainerLibraries.Visibility = Visibility.Visible;
             MovieCollection.Clear();
-            spMovies.Visibility = Visibility.Collapsed;
+            ContainerMovies.Visibility = Visibility.Collapsed;
             ActorCollection.Clear();
-            spCast.Visibility = Visibility.Collapsed;
+            ContainerCast.Visibility = Visibility.Collapsed;
+            MainGrid.RowDefinitions[1].Height = new GridLength(0);
 
             foreach (DataRow row in Database.GetLibrarySections().Rows)
             {
@@ -71,9 +72,10 @@ namespace WPFPlexCastEditor
         private void LoadMovieCollection(long library_id)
         {
             MovieCollection.Clear();
-            spMovies.Visibility = Visibility.Visible;
+            ContainerMovies.Visibility = Visibility.Visible;
             ActorCollection.Clear();
-            spCast.Visibility = Visibility.Collapsed;
+            ContainerCast.Visibility = Visibility.Collapsed;
+            MainGrid.RowDefinitions[1].Height = new GridLength(0);
 
             foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
             {   
@@ -84,7 +86,10 @@ namespace WPFPlexCastEditor
         private void LoadActorCollection(long item_id)
         {
             ActorCollection.Clear();
-            spCast.Visibility = Visibility.Visible;
+            ContainerCast.Visibility = Visibility.Visible;
+            MainGrid.RowDefinitions[1].Height = new GridLength(65);
+            autoActors.Text = string.Empty;
+            this.btnAddActor.IsEnabled = false;
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
             {
@@ -94,33 +99,59 @@ namespace WPFPlexCastEditor
 
         private void LoadAutoActorCollection()
         {
+            AutoActorCollection.Clear();
+
             foreach (DataRow row in Database.GetAllActors().Rows)
             {
-                if (!ActorCollection.AsEnumerable().Any(x => x.tag == row.Field<string>("tag")))
-                {
-                    AutoActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
-                }
+                AutoActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
             }
         }
 
-        private void btnRemoveActor_MouseUp(object sender, MouseButtonEventArgs e)
+        private void btnRemoveActor_Click(object sender, RoutedEventArgs e)
         {
-
+            Button button = sender as Button;
+            Actor actor = button.DataContext as Actor;
+            ActorCollection.Remove(actor);
         }
 
         private void autoActors_TextChanged(object sender, RoutedEventArgs e)
         {
-            string text = autoActors.Text;
-            Actor selectedActor = (Actor)autoActors.SelectedItem;
+            btnAddActor.IsEnabled = autoActors.Text.Trim().Length > 0;
+        }
 
-            if (selectedActor != null && text.Trim().Equals(selectedActor.tag, StringComparison.InvariantCultureIgnoreCase))
+        private void btnAddActor_Click(object sender, RoutedEventArgs e)
+        {
+            Actor actor_from_cast = ActorCollection.Where(x => x.tag.ToLower().Trim() == autoActors.Text.ToLower().Trim()).FirstOrDefault();
+            
+            if (actor_from_cast == null)
             {
-                btnAddActor.Content = "Add: " + selectedActor.tag;
+                Actor actor_from_search = AutoActorCollection.Where(x => x.tag.Trim() == autoActors.Text.Trim()).FirstOrDefault();
+
+                if (actor_from_search != null)
+                {
+                    ActorCollection.Add(actor_from_search);
+                }
+                else
+                {
+                    ActorCollection.Add(new Actor() { id = -1, tag = autoActors.Text.Trim() });
+                }
             }
-            else if (!string.IsNullOrWhiteSpace(text))
+
+            autoActors.Text = string.Empty;
+            btnAddActor.IsEnabled = false;
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvLibrarySections.SelectedItem != null)
             {
-                btnAddActor.Content = "Create: " + text.Trim();
+                LoadMovieCollection(((Library)lvLibrarySections.SelectedItem).id);
             }
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

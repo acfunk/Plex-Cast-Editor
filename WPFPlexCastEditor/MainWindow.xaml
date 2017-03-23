@@ -17,7 +17,11 @@
         <collections:ActorCollection x:Key="ActorList"/>
     </Window.Resources>
 
-    <Grid>
+    <Grid Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="0" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="1*" />
@@ -25,7 +29,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Libraries-->
-        <StackPanel Name="spLibraries" Grid.Column="0" Orientation="Vertical" Background="#FF54456C">
+        <StackPanel Name="ContainerLibraries" Grid.Column="0" Orientation="Vertical" Background="#FF54456C">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Libraries</Label>
             <ListView Name="lvLibrarySections" SelectionChanged="lvLibrarySections_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="Transparent">
                 <ListView.ItemTemplate>
@@ -37,24 +41,22 @@
         </StackPanel>
 
         <!-- Movies -->
-        <StackPanel Name="spMovies" Grid.Column="1" Orientation="Vertical">
+        <StackPanel Name="ContainerMovies" Grid.Column="1" Orientation="Vertical">
             <Label FontWeight="Bold" FontSize="18" Foreground="#FF54456C">Movies</Label>
             <ListView Name="lvMovies" SelectionChanged="lvMovies_SelectionChanged" HorizontalAlignment="Stretch" BorderThickness="0">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Foreground="#FF54456C" Text="{Binding title}" HorizontalAlignment="Stretch" />
-                        </StackPanel>
+                        <Label Content="{Binding title}" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </StackPanel>
 
         <!-- Cast -->
-        <StackPanel Name="spCast" Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
+        <StackPanel Name="ContainerCast" Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
-            <ListBox Name="lvActors" HorizontalAlignment="Stretch" DataContext="{Binding Source={StaticResource ActorList}}" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch">
-                <ListBox.ItemTemplate>
+            <ListView Name="lvActors" DataContext="{Binding Source={StaticResource ActorList}}" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch" BorderThickness="0">
+                <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid HorizontalAlignment="Stretch">
                             <Grid.RowDefinitions>
@@ -65,18 +67,31 @@
                                 <ColumnDefinition Width="1*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBlock Name="tbActor" Grid.Column="0" Text="{Binding tag}" HorizontalAlignment="Stretch" />
-                            <Image Name="btnRemoveActor" Grid.Column="1" HorizontalAlignment="Right" MouseUp="btnRemoveActor_MouseUp"  Source="Images/delete-512.png" Width="16" Height="16"/>
+                            <Button Name="btnRemoveActor" Grid.Column="1" HorizontalAlignment="Right" Click="btnRemoveActor_Click">
+                                <StackPanel>
+                                    <Image Source="Images/delete-512.png" Width="16"></Image>
+                                </StackPanel>
+                            </Button>
                         </Grid>
                     </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Foreground="White">Search all actors</Label>
             <toolkit:AutoCompleteBox Name="autoActors" 
                                      ItemTemplate="{StaticResource AutoCompleteActorTemplate}"
                                      ValueMemberPath="tag"
                                      FilterMode="StartsWith"
                                      IsTextCompletionEnabled="True"
                                      TextChanged="autoActors_TextChanged"/>
-            <Button x:Name="btnAddActor" Content="Add Actor" />
+            <Button x:Name="btnAddActor" Click="btnAddActor_Click" Content="Add Actor" />
         </StackPanel>
+
+        <Grid Name="ContainerActions" Grid.Row="1" Grid.ColumnSpan="3" Background="#323232">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="btnCancel" Click="btnCancel_Click" Content="Cancel" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#ccc" />
+                <Button x:Name="btnSave" Click="btnSave_Click" Content="Save Changes" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#cc7b19" />
+            </StackPanel>
+        </Grid>
+        
     </Grid>
 </Window>
