@@ -42,7 +42,7 @@
 
         <!-- Movies -->
         <StackPanel Name="ContainerMovies" Grid.Column="1" Orientation="Vertical">
-            <Label FontWeight="Bold" FontSize="18" Foreground="#FF54456C">Movies</Label>
+            <Label FontWeight="Bold" FontSize="18" Foreground="#FF54456C">Items</Label>
             <ListView Name="lvMovies" SelectionChanged="lvMovies_SelectionChanged" HorizontalAlignment="Stretch" BorderThickness="0">
                 <ListView.ItemTemplate>
                     <DataTemplate>

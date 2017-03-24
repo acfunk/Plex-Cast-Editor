@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using WPFPlexCastEditor.Collections;
 
 namespace WPFPlexCastEditor
@@ -12,17 +11,17 @@ namespace WPFPlexCastEditor
     public partial class MainWindow : Window
     {
         public LibraryCollection LibraryCollection { get; set; }
-        public MovieCollection MovieCollection { get; set; }
-        public ActorCollection ActorCollection { get; set; }
-        public ActorCollection AutoActorCollection { get; set; }
+        public MetadataItemCollection ItemCollection { get; set; }
+        public ActorCollection CastCollection { get; set; }
+        public ActorCollection AllActorsCollection { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             LibraryCollection = new LibraryCollection();
-            MovieCollection = new MovieCollection();
-            ActorCollection = new ActorCollection();
-            AutoActorCollection = new ActorCollection();
+            ItemCollection = new MetadataItemCollection();
+            CastCollection = new ActorCollection();
+            AllActorsCollection = new ActorCollection();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -30,18 +29,18 @@ namespace WPFPlexCastEditor
             this.DataContext = this;
             Database.DBFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Plex Media Server\\Plug-in Support\\Databases\\com.plexapp.plugins.library.db");
             lvLibrarySections.ItemsSource = LibraryCollection;
-            lvMovies.ItemsSource = MovieCollection;
-            lvActors.ItemsSource = ActorCollection;
-            autoActors.ItemsSource = AutoActorCollection;
+            lvMovies.ItemsSource = ItemCollection;
+            lvActors.ItemsSource = CastCollection;
+            autoActors.ItemsSource = AllActorsCollection;
             LoadLibraryCollection();
-            LoadAutoActorCollection();
+            LoadAllActorsCollection();
         }
 
         private void lvLibrarySections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (lvLibrarySections.SelectedItem != null)
             {
-                LoadMovieCollection(((Library)lvLibrarySections.SelectedItem).id);
+                LoadItemCollection(((Library)lvLibrarySections.SelectedItem).id);
             }
         }
 
@@ -49,7 +48,7 @@ namespace WPFPlexCastEditor
         {
             if (lvMovies.SelectedItem != null)
             {
-                LoadActorCollection(((Movie)lvMovies.SelectedItem).id);
+                LoadCastCollection(((MetadataItem)lvMovies.SelectedItem).id);
             }
         }
 
@@ -57,9 +56,9 @@ namespace WPFPlexCastEditor
         {
             LibraryCollection.Clear();
             ContainerLibraries.Visibility = Visibility.Visible;
-            MovieCollection.Clear();
+            ItemCollection.Clear();
             ContainerMovies.Visibility = Visibility.Collapsed;
-            ActorCollection.Clear();
+            CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;
             MainGrid.RowDefinitions[1].Height = new GridLength(0);
 
@@ -69,23 +68,23 @@ namespace WPFPlexCastEditor
             }
         }
 
-        private void LoadMovieCollection(long library_id)
+        private void LoadItemCollection(long library_id)
         {
-            MovieCollection.Clear();
+            ItemCollection.Clear();
             ContainerMovies.Visibility = Visibility.Visible;
-            ActorCollection.Clear();
+            CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;
             MainGrid.RowDefinitions[1].Height = new GridLength(0);
 
             foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
             {   
-                MovieCollection.Add(new Movie() { id = long.Parse(row["id"].ToString()), title = row["title"].ToString() });
+                ItemCollection.Add(new MetadataItem() { id = long.Parse(row["id"].ToString()), title = row["title"].ToString() });
             }
         }
 
-        private void LoadActorCollection(long item_id)
+        private void LoadCastCollection(long item_id)
         {
-            ActorCollection.Clear();
+            CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Visible;
             MainGrid.RowDefinitions[1].Height = new GridLength(65);
             autoActors.Text = string.Empty;
@@ -93,17 +92,17 @@ namespace WPFPlexCastEditor
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
             {
-                ActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
+                CastCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
             }
         }
 
-        private void LoadAutoActorCollection()
+        private void LoadAllActorsCollection()
         {
-            AutoActorCollection.Clear();
+            AllActorsCollection.Clear();
 
             foreach (DataRow row in Database.GetAllActors().Rows)
             {
-                AutoActorCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
+                AllActorsCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
             }
         }
 
@@ -111,7 +110,7 @@ namespace WPFPlexCastEditor
         {
             Button button = sender as Button;
             Actor actor = button.DataContext as Actor;
-            ActorCollection.Remove(actor);
+            CastCollection.Remove(actor);
         }
 
         private void autoActors_TextChanged(object sender, RoutedEventArgs e)
@@ -121,19 +120,19 @@ namespace WPFPlexCastEditor
 
         private void btnAddActor_Click(object sender, RoutedEventArgs e)
         {
-            Actor actor_from_cast = ActorCollection.Where(x => x.tag.ToLower().Trim() == autoActors.Text.ToLower().Trim()).FirstOrDefault();
+            Actor actor_from_cast = CastCollection.Where(x => x.tag.ToLower().Trim() == autoActors.Text.ToLower().Trim()).FirstOrDefault();
             
             if (actor_from_cast == null)
             {
-                Actor actor_from_search = AutoActorCollection.Where(x => x.tag.Trim() == autoActors.Text.Trim()).FirstOrDefault();
+                Actor actor_from_search = AllActorsCollection.Where(x => x.tag.Trim() == autoActors.Text.Trim()).FirstOrDefault();
 
                 if (actor_from_search != null)
                 {
-                    ActorCollection.Add(actor_from_search);
+                    CastCollection.Add(actor_from_search);
                 }
                 else
                 {
-                    ActorCollection.Add(new Actor() { id = -1, tag = autoActors.Text.Trim() });
+                    CastCollection.Add(new Actor() { id = -1, tag = autoActors.Text.Trim() });
                 }
             }
 
@@ -145,13 +144,14 @@ namespace WPFPlexCastEditor
         {
             if (lvLibrarySections.SelectedItem != null)
             {
-                LoadMovieCollection(((Library)lvLibrarySections.SelectedItem).id);
+                LoadItemCollection(((Library)lvLibrarySections.SelectedItem).id);
             }
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-
+            Database.ResetTaggings(((MetadataItem)lvMovies.SelectedItem).id, CastCollection);
+            LoadAllActorsCollection();
         }
     }
 }
