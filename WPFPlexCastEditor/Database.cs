@@ -117,35 +117,6 @@ namespace WPFPlexCastEditor
             return table;
         }
 
-        public static long CreateActors(string actor)
-        {
-            long row_id = 0;
-
-            using (var connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", DBFile)))
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("INSERT INTO tags (tag,tag_type,created_at,updated_at)");
-                sb.AppendLine("VALUES(");
-                sb.AppendLine(" @tag");
-                sb.AppendLine(" ,6");
-                sb.AppendLine(" ,datetime(current_timestamp, 'localtime')");
-                sb.AppendLine(" ,datetime(current_timestamp, 'localtime')");
-                sb.AppendLine(" );");
-
-                using (SQLiteCommand command = new SQLiteCommand(sb.ToString(), connection))
-                {
-                    command.Parameters.AddWithValue("@tag", actor);
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    command.CommandText = "SELECT last_insert_rowid()";
-                    row_id = (long)command.ExecuteScalar();
-                    connection.Close();
-                }
-            }
-
-            return row_id;
-        }
-
         public static void ResetTaggings(long metadataItemId, ActorCollection cast)
         {
             StringBuilder deleteTaggings = new StringBuilder();
