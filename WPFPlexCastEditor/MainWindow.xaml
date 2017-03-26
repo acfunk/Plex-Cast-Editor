@@ -29,7 +29,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Libraries-->
-        <StackPanel Name="ContainerLibraries" Grid.Column="0" Orientation="Vertical" Background="#FF54456C">
+        <StackPanel Name="ContainerLibraries" Grid.Column="0" Orientation="Vertical" Background="#1E1E1E">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Libraries</Label>
             <ListView Name="lvLibrarySections" SelectionChanged="lvLibrarySections_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="Transparent">
                 <ListView.ItemTemplate>
@@ -42,7 +42,7 @@
 
         <!-- Movies -->
         <StackPanel Name="ContainerMovies" Grid.Column="1" Orientation="Vertical">
-            <Label FontWeight="Bold" FontSize="18" Foreground="#FF54456C">Items</Label>
+            <Label FontWeight="Bold" FontSize="18" Foreground="#1E1E1E">Items</Label>
             <ListView Name="lvMovies" SelectionChanged="lvMovies_SelectionChanged" HorizontalAlignment="Stretch" BorderThickness="0">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -53,7 +53,7 @@
         </StackPanel>
 
         <!-- Cast -->
-        <StackPanel Name="ContainerCast" Grid.Column="2" Orientation="Vertical" Background="#FF54456C">
+        <StackPanel Name="ContainerCast" Grid.Column="2" Orientation="Vertical" Background="#1E1E1E">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
             <ListView Name="lvActors" DataContext="{Binding Source={StaticResource ActorList}}" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch" BorderThickness="0">
                 <ListView.ItemTemplate>
@@ -81,15 +81,15 @@
                                      ItemTemplate="{StaticResource AutoCompleteActorTemplate}"
                                      ValueMemberPath="tag"
                                      FilterMode="StartsWith"
-                                     IsTextCompletionEnabled="True"
-                                     TextChanged="autoActors_TextChanged"/>
-            <Button x:Name="btnAddActor" Click="btnAddActor_Click" Content="Add Actor" />
+                                     IsTextCompletionEnabled="False"
+                                     KeyUp="autoActors_KeyUp"
+                                     MouseLeftButtonUp="autoActors_MouseLeftButtonUp"/>
         </StackPanel>
 
         <Grid Name="ContainerActions" Grid.Row="1" Grid.ColumnSpan="3" Background="#323232">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="btnCancel" Click="btnCancel_Click" Content="Cancel" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#ccc" />
-                <Button x:Name="btnSave" Click="btnSave_Click" Content="Save Changes" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#cc7b19" />
+                <Button x:Name="btnCancel" Click="btnCancel_Click" Content="Cancel" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#656565" />
+                <Button x:Name="btnSave" Click="btnSave_Click" Content="Save Changes" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#E38E28" />
             </StackPanel>
         </Grid>
         

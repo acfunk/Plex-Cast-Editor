@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using WPFPlexCastEditor.Collections;
 
 namespace WPFPlexCastEditor
@@ -88,7 +89,6 @@ namespace WPFPlexCastEditor
             ContainerCast.Visibility = Visibility.Visible;
             MainGrid.RowDefinitions[1].Height = new GridLength(65);
             autoActors.Text = string.Empty;
-            this.btnAddActor.IsEnabled = false;
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
             {
@@ -113,45 +113,59 @@ namespace WPFPlexCastEditor
             CastCollection.Remove(actor);
         }
 
-        private void autoActors_TextChanged(object sender, RoutedEventArgs e)
+        private void TryAddActor()
         {
-            btnAddActor.IsEnabled = autoActors.Text.Trim().Length > 0;
-        }
-
-        private void btnAddActor_Click(object sender, RoutedEventArgs e)
-        {
-            Actor actor_from_cast = CastCollection.Where(x => x.tag.ToLower().Trim() == autoActors.Text.ToLower().Trim()).FirstOrDefault();
-            
-            if (actor_from_cast == null)
+            if (!string.IsNullOrWhiteSpace(autoActors.Text))
             {
-                Actor actor_from_search = AllActorsCollection.Where(x => x.tag.Trim() == autoActors.Text.Trim()).FirstOrDefault();
+                Actor actor_from_cast = CastCollection.Where(x => x.tag.ToLower().Trim() == autoActors.Text.ToLower().Trim()).FirstOrDefault();
 
-                if (actor_from_search != null)
+                if (actor_from_cast == null)
                 {
-                    CastCollection.Add(actor_from_search);
-                }
-                else
-                {
-                    CastCollection.Add(new Actor() { id = -1, tag = autoActors.Text.Trim() });
+                    Actor actor_from_search = AllActorsCollection.Where(x => x.tag.Trim() == autoActors.Text.Trim()).FirstOrDefault();
+
+                    if (actor_from_search != null)
+                    {
+                        CastCollection.Add(actor_from_search);
+                    }
+                    else
+                    {
+                        CastCollection.Add(new Actor() { id = -1, tag = autoActors.Text.Trim() });
+                    }
                 }
             }
 
             autoActors.Text = string.Empty;
-            btnAddActor.IsEnabled = false;
+            autoActors.SelectedItem = null;
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-            if (lvLibrarySections.SelectedItem != null)
-            {
-                LoadItemCollection(((Library)lvLibrarySections.SelectedItem).id);
-            }
+            lvMovies.SelectedItem = null;
+            CastCollection.Clear();
+            ContainerCast.Visibility = Visibility.Collapsed;
+            MainGrid.RowDefinitions[1].Height = new GridLength(0);
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             Database.ResetTaggings(((MetadataItem)lvMovies.SelectedItem).id, CastCollection);
-            LoadAllActorsCollection();
+            lvMovies.SelectedItem = null;
+            CastCollection.Clear();
+            ContainerCast.Visibility = Visibility.Collapsed;
+            MainGrid.RowDefinitions[1].Height = new GridLength(0);
+        }
+
+        private void autoActors_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TryAddActor();
+            }
+        }
+
+        private void autoActors_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            TryAddActor();
         }
     }
 }
