@@ -35,9 +35,10 @@ namespace WPFPlexCastEditor
             sb.AppendLine("SELECT");
             sb.AppendLine("	mi.id");
             sb.AppendLine("	,mi.title");
-            sb.AppendLine("	,mi.user_thumb_url");
-            sb.AppendLine("	,mi.user_fields");
+            sb.AppendLine("	,mi.originally_available_at AS release_date");
+            sb.AppendLine("	,mi.added_at AS date_added");
             sb.AppendLine("	,COUNT(t.id) AS actor_count");
+            sb.AppendLine("	,mi.user_fields");
             sb.AppendLine("FROM metadata_items mi");
             sb.AppendLine("LEFT JOIN taggings ti");
             sb.AppendLine("	ON mi.id = ti.metadata_item_id");
