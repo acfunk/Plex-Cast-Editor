@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -35,6 +36,7 @@ namespace WPFPlexCastEditor
             autoActors.ItemsSource = AllActorsCollection;
             LoadLibraryCollection();
             LoadAllActorsCollection();
+            this.lblMessaging.Content = string.Format("Connected to {0}", Database.DBFile);
         }
 
         private void lvLibrarySections_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -61,7 +63,7 @@ namespace WPFPlexCastEditor
             ContainerMovies.Visibility = Visibility.Collapsed;
             CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;
-            MainGrid.RowDefinitions[1].Height = new GridLength(0);
+            MainGrid.RowDefinitions[2].Height = new GridLength(0);
 
             foreach (DataRow row in Database.GetLibrarySections().Rows)
             {
@@ -75,7 +77,7 @@ namespace WPFPlexCastEditor
             ContainerMovies.Visibility = Visibility.Visible;
             CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;
-            MainGrid.RowDefinitions[1].Height = new GridLength(0);
+            MainGrid.RowDefinitions[2].Height = new GridLength(0);
 
             foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
             {   
@@ -87,7 +89,7 @@ namespace WPFPlexCastEditor
         {
             CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Visible;
-            MainGrid.RowDefinitions[1].Height = new GridLength(65);
+            MainGrid.RowDefinitions[2].Height = new GridLength(65);
             autoActors.Text = string.Empty;
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
@@ -99,11 +101,14 @@ namespace WPFPlexCastEditor
         private void LoadAllActorsCollection()
         {
             AllActorsCollection.Clear();
+            autoActors.ItemsSource = null;
 
             foreach (DataRow row in Database.GetAllActors().Rows)
             {
                 AllActorsCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
             }
+
+            autoActors.ItemsSource = AllActorsCollection;
         }
 
         private void btnRemoveActor_Click(object sender, RoutedEventArgs e)
@@ -143,7 +148,7 @@ namespace WPFPlexCastEditor
             lvMovies.SelectedItem = null;
             CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;
-            MainGrid.RowDefinitions[1].Height = new GridLength(0);
+            MainGrid.RowDefinitions[2].Height = new GridLength(0);
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
@@ -152,7 +157,7 @@ namespace WPFPlexCastEditor
             lvMovies.SelectedItem = null;
             CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;
-            MainGrid.RowDefinitions[1].Height = new GridLength(0);
+            MainGrid.RowDefinitions[2].Height = new GridLength(0);
         }
 
         private void autoActors_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -166,6 +171,20 @@ namespace WPFPlexCastEditor
         private void autoActors_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             TryAddActor();
+        }
+
+        private void btnChangeFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Database files (*.db)|*.db|All files (*.*)|*.*";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Database.DBFile = openFileDialog.FileName;
+                LoadLibraryCollection();
+                LoadAllActorsCollection();
+                this.lblMessaging.Content = string.Format("Connected to {0}", Database.DBFile);
+            }
         }
     }
 }

@@ -19,6 +19,7 @@
 
     <Grid Name="MainGrid">
         <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
             <RowDefinition Height="*" />
             <RowDefinition Height="0" />
         </Grid.RowDefinitions>
@@ -28,8 +29,32 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
+        <!-- Messaging -->
+        <StackPanel Name="ContainerMessaging" Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" Background="#323232">
+            <Label Name="lblMessaging" Foreground="White">[Message Goes Here]</Label>
+            <Button Name="btnChangeFile" Margin="5" Content="Click to Change" Cursor="Hand" Click="btnChangeFile_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock TextDecorations="Underline">
+                            <ContentPresenter />
+                        </TextBlock>
+                    </ControlTemplate>
+                </Button.Template>
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Foreground" Value="Red" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+
         <!-- Libraries-->
-        <StackPanel Name="ContainerLibraries" Grid.Column="0" Orientation="Vertical" Background="#1E1E1E">
+        <StackPanel Name="ContainerLibraries" Grid.Row="1" Grid.Column="0" Orientation="Vertical" Background="#1E1E1E">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Libraries</Label>
             <ListView Name="lvLibrarySections" SelectionChanged="lvLibrarySections_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Background="Transparent">
                 <ListView.ItemTemplate>
@@ -41,7 +66,7 @@
         </StackPanel>
 
         <!-- Movies -->
-        <StackPanel Name="ContainerMovies" Grid.Column="1" Orientation="Vertical">
+        <StackPanel Name="ContainerMovies" Grid.Row="1" Grid.Column="1" Orientation="Vertical">
             <Label FontWeight="Bold" FontSize="18" Foreground="#1E1E1E">Items</Label>
             <ListView Name="lvMovies" SelectionChanged="lvMovies_SelectionChanged" HorizontalAlignment="Stretch" BorderThickness="0">
                 <ListView.ItemTemplate>
@@ -53,7 +78,7 @@
         </StackPanel>
 
         <!-- Cast -->
-        <StackPanel Name="ContainerCast" Grid.Column="2" Orientation="Vertical" Background="#1E1E1E">
+        <StackPanel Name="ContainerCast" Grid.Row="1" Grid.Column="2" Orientation="Vertical" Background="#1E1E1E">
             <Label FontWeight="Bold" FontSize="18" Foreground="White">Cast</Label>
             <ListView Name="lvActors" DataContext="{Binding Source={StaticResource ActorList}}" ItemsSource="{Binding}" HorizontalContentAlignment="Stretch" BorderThickness="0">
                 <ListView.ItemTemplate>
@@ -86,12 +111,12 @@
                                      MouseLeftButtonUp="autoActors_MouseLeftButtonUp"/>
         </StackPanel>
 
-        <Grid Name="ContainerActions" Grid.Row="1" Grid.ColumnSpan="3" Background="#323232">
+        <Grid Name="ContainerActions" Grid.Row="2" Grid.ColumnSpan="3" Background="#323232">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="btnCancel" Click="btnCancel_Click" Content="Cancel" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#656565" />
                 <Button x:Name="btnSave" Click="btnSave_Click" Content="Save Changes" FontWeight="Bold" Foreground="White" FontSize="18" Margin="10" Padding="10" Background="#E38E28" />
             </StackPanel>
         </Grid>
-        
+
     </Grid>
 </Window>
