@@ -47,7 +47,8 @@ namespace WPFPlexCastEditor
             sb.AppendLine("	AND t.tag_type = 6");
             sb.AppendLine("WHERE mi.library_section_id = @library_section_id");
             sb.AppendLine(" AND mi.metadata_type IN (1,2)");
-            sb.AppendLine("GROUP BY mi.id;");
+            sb.AppendLine("GROUP BY mi.id");
+            sb.AppendLine("ORDER BY mi.title;");
 
             using (var connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", DBFile)))
             {

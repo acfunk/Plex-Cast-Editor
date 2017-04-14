@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -145,7 +146,7 @@ namespace WPFPlexCastEditor
             }
 
             autoActors.ItemsSource = AllActorsCollection;
-        }
+         }
 
         private void LoadLibraryCollection()
         {
@@ -200,6 +201,7 @@ namespace WPFPlexCastEditor
             }
 
             lvMovies.ItemsSource = ItemCollection;
+            this.lvMovies.ColumnFromDisplayIndex(0).SortDirection = ListSortDirection.Ascending;
         }
 
         private void LoadCastCollection(long item_id)
