@@ -98,7 +98,7 @@ namespace WPFPlexCastEditor
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            Database.ResetTaggings(((MetadataItem)lvMovies.SelectedItem).id, CastCollection);
+            Database.ResetTaggings((MetadataItem)lvMovies.SelectedItem, CastCollection);
             lvMovies.SelectedItem = null;
             CastCollection.Clear();
             ContainerCast.Visibility = Visibility.Collapsed;

@@ -2,6 +2,9 @@
 using System.Data.SQLite;
 using System.Text;
 using WPFPlexCastEditor.Collections;
+using System.Linq;
+using System.Collections.Generic;
+using System;
 
 namespace WPFPlexCastEditor
 {
@@ -119,8 +122,29 @@ namespace WPFPlexCastEditor
             return table;
         }
 
-        public static void ResetTaggings(long metadataItemId, ActorCollection cast)
+        public static void ResetTaggings(MetadataItem metadataItem, ActorCollection cast)
         {
+            // metadata_items.userfields must have lockedFields with 19 in "|" piped delimited list
+            string user_fields = "lockedFields=19";
+
+            // If there is an equal sign, assume that everything after is pipe delitemed ints
+            // Don't throw an exception
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(metadataItem.user_fields) && metadataItem.user_fields.Contains("="))
+                {
+                    List<int> lockedFieldList = metadataItem.user_fields.Substring(metadataItem.user_fields.IndexOf("=") + 1).Split('|').Select(Int32.Parse).ToList();
+                    if (!lockedFieldList.Contains(19))
+                    {
+                        lockedFieldList.Add(19);
+                        lockedFieldList.Sort();
+                    }
+
+                    user_fields = "lockedFields=" + string.Join("|", lockedFieldList);
+                }
+            }
+            catch { }
+
             StringBuilder deleteTaggings = new StringBuilder();
             deleteTaggings.AppendLine("DELETE FROM taggings");
             deleteTaggings.AppendLine("WHERE id in (");
@@ -141,6 +165,11 @@ namespace WPFPlexCastEditor
             insertTag.AppendLine(" ,datetime(current_timestamp, 'localtime')");
             insertTag.AppendLine(" );");
 
+            StringBuilder updateUserFields = new StringBuilder();
+            updateUserFields.AppendLine("UPDATE metadata_items");
+            updateUserFields.AppendLine("SET user_fields = @user_fields");
+            updateUserFields.AppendLine("WHERE id = @metadata_item_id");
+            
             string comma = "";
             int index = 0;
             StringBuilder insertTaggging = new StringBuilder();
@@ -167,14 +196,14 @@ namespace WPFPlexCastEditor
                                 actor.id = (long)command.ExecuteScalar();
                             }
                             
-                            insertTaggging.AppendLine(string.Format("    {0}({1}, {2}, {3}, datetime(current_timestamp, 'localtime'))", comma, metadataItemId, actor.id, index));
+                            insertTaggging.AppendLine(string.Format("    {0}({1}, {2}, {3}, datetime(current_timestamp, 'localtime'))", comma, metadataItem.id, actor.id, index));
                             comma = ",";
                             index++;
                         }
 
                         // Delete all existing actor taggings
                         command.CommandText = deleteTaggings.ToString();
-                        command.Parameters.AddWithValue("@metadata_item_id", metadataItemId);
+                        command.Parameters.AddWithValue("@metadata_item_id", metadataItem.id);
                         command.ExecuteNonQuery();
 
                         if (cast.Count > 0)
@@ -183,6 +212,12 @@ namespace WPFPlexCastEditor
                             command.CommandText = insertTaggging.ToString();
                             command.ExecuteNonQuery();
                         }
+
+                        // Updating user_fileds with value of 19 in pipe list
+                        command.CommandText = updateUserFields.ToString();
+                        command.Parameters.AddWithValue("@user_fields", user_fields);
+                        command.Parameters.AddWithValue("@metadata_item_id", metadataItem.id);
+                        command.ExecuteNonQuery();
                     }
 
                     transaction.Commit();
