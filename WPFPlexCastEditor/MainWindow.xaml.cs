@@ -177,9 +177,26 @@ namespace WPFPlexCastEditor
 
             lvMovies.ItemsSource = null;
 
-            foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
+            try
             {
-                ItemCollection.Add(new MetadataItem() { id = long.Parse(row["id"].ToString()), title = row["title"].ToString() });
+
+                foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
+                {
+                    ItemCollection.Add(new MetadataItem()
+                    {
+                        id = long.Parse(row["id"].ToString()),
+                        title = row["title"].ToString(),
+                        release_date = DateTime.Parse(row["release_date"].ToString()),
+                        date_added = DateTime.Parse(row["date_added"].ToString()),
+                        actor_count = int.Parse(row["actor_count"].ToString()),
+                        user_fields = row["user_fields"].ToString()
+                    });
+                }
+
+            }
+            catch(Exception ex)
+            {
+                string message = ex.Message;
             }
 
             lvMovies.ItemsSource = ItemCollection;
