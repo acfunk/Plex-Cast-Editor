@@ -142,7 +142,11 @@ namespace WPFPlexCastEditor
 
             foreach (DataRow row in Database.GetAllActors().Rows)
             {
-                AllActorsCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
+                AllActorsCollection.Add(new Actor()
+                {
+                    id = long.Parse(row["id"].ToString()),
+                    tag = row["tag"].ToString()
+                });
             }
 
             autoActors.ItemsSource = AllActorsCollection;
@@ -162,7 +166,11 @@ namespace WPFPlexCastEditor
 
             foreach (DataRow row in Database.GetLibrarySections().Rows)
             {
-                LibraryCollection.Add(new Library() { id = long.Parse(row["id"].ToString()), name = row["name"].ToString() });
+                LibraryCollection.Add(new Library()
+                {
+                    id = long.Parse(row["id"].ToString()),
+                    name = row["name"].ToString()
+                });
             }
 
             lvLibrarySections.ItemsSource = LibraryCollection;
@@ -178,26 +186,17 @@ namespace WPFPlexCastEditor
 
             lvMovies.ItemsSource = null;
 
-            try
+            foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
             {
-
-                foreach (DataRow row in Database.GetMetadataItems(library_id).Rows)
+                ItemCollection.Add(new MetadataItem()
                 {
-                    ItemCollection.Add(new MetadataItem()
-                    {
-                        id = long.Parse(row["id"].ToString()),
-                        title = row["title"].ToString(),
-                        release_date = DateTime.Parse(row["release_date"].ToString()),
-                        date_added = DateTime.Parse(row["date_added"].ToString()),
-                        actor_count = int.Parse(row["actor_count"].ToString()),
-                        user_fields = row["user_fields"].ToString()
-                    });
-                }
-
-            }
-            catch(Exception ex)
-            {
-                string message = ex.Message;
+                    id = long.Parse(row["id"].ToString()),
+                    title = row["title"].ToString(),
+                    release_date = TryParseNullableDateTime(row["release_date"].ToString()),
+                    date_added = TryParseNullableDateTime(row["date_added"].ToString()),
+                    actor_count = int.Parse(row["actor_count"].ToString()),
+                    user_fields = row["user_fields"].ToString()
+                });
             }
 
             lvMovies.ItemsSource = ItemCollection;
@@ -215,7 +214,11 @@ namespace WPFPlexCastEditor
 
             foreach (DataRow row in Database.GetActors(item_id).Rows)
             {
-                CastCollection.Add(new Actor() { id = long.Parse(row["id"].ToString()), tag = row["tag"].ToString() });
+                CastCollection.Add(new Actor()
+                {
+                    id = long.Parse(row["id"].ToString()),
+                    tag = row["tag"].ToString()
+                });
             }
 
             lvActors.ItemsSource = CastCollection;
@@ -244,6 +247,12 @@ namespace WPFPlexCastEditor
 
             autoActors.Text = string.Empty;
             autoActors.SelectedItem = null;
+        }
+
+        public static DateTime? TryParseNullableDateTime(string text)
+        {
+            DateTime date;
+            return DateTime.TryParse(text, out date) ? date : (DateTime?)null;
         }
 
         #endregion Methods
